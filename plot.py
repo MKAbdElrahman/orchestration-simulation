@@ -32,7 +32,7 @@ plt.xlabel('Availability')
 plt.ylabel('Latency [ms]')
 plt.legend()
 plt.grid(True)
-plt.savefig('combined_latency_plot.png')
+# plt.savefig('combined_latency_plot.png')
 plt.show()
 
 # Plot combined Failure and Success Ratios for both datasets in blocking mode
@@ -45,5 +45,5 @@ plt.xlabel('Availability')
 plt.ylabel('Ratio')
 plt.legend()
 plt.grid(True)
-plt.savefig('failure_success_ratio_plot.png')
+# plt.savefig('failure_success_ratio_plot.png')
 plt.show()  # This will block the execution until the plot window is closed
