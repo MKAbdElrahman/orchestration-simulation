@@ -24,6 +24,7 @@ type Result struct {
 	AverageSuccessLatency time.Duration
 	AverageFailureLatency time.Duration
 	SuccessRatio          float64
+	NumDomainServices     int
 }
 
 // RunExperiment runs a single experiment and returns the result.
@@ -88,6 +89,7 @@ func RunExperiment(exp Experiment) Result {
 		AverageSuccessLatency: averageSuccessLatency,
 		AverageFailureLatency: averageFailureLatency,
 		SuccessRatio:          successRatio,
+		NumDomainServices:     len(exp.OrchestratedServices),
 	}
 }
 
