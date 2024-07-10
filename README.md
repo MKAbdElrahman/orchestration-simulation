@@ -14,11 +14,6 @@ I attended a workshop by Mark and Neal on the O'Reilly platform. After the lectu
 
 It was very easy to simulate sagas with Go, given its great support for multithreading.
 
-This repository contains implementations and examples to help understand the different aspects of sagas in microservices:
-
-- **Blocking vs Non-Blocking Communication**
-- **Orchestration vs Choreography Coordination**
-- **Atomicity vs Eventual Consistency Transactionality**
 
 ### Prerequisites
 
