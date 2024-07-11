@@ -8,6 +8,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"sync"
 	"time"
@@ -23,7 +24,7 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(4) // We are running three sweeps in parallel
+	wg.Add(4) // We are running four sweeps in parallel
 
 	go func() {
 		defer wg.Done()
@@ -119,7 +120,15 @@ func generateExperiments(start, end float64, numPoints int, network network.Netw
 	return experiments
 }
 
-func saveResultsToCSV(results []sweep.Result, filePath string) error {
+func saveResultsToCSV(results []sweep.Result, fileName string) error {
+	resultsDir := "results"
+
+	// Create the directory if it doesn't exist
+	if err := os.MkdirAll(resultsDir, os.ModePerm); err != nil {
+		return err
+	}
+
+	filePath := filepath.Join(resultsDir, fileName)
 	file, err := os.Create(filePath)
 	if err != nil {
 		return err

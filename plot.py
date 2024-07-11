@@ -4,10 +4,10 @@ import seaborn as sns
 
 # List of filenames to load
 filenames = [
-    'epic_3_services.csv',
-    'fantasyfiction_3_services.csv',
-    'fairytale_3_services.csv',
-    'parallel_3_services.csv',
+    'results/epic_3_services.csv',
+    'results/fantasyfiction_3_services.csv',
+    'results/fairytale_3_services.csv',
+    'results/parallel_3_services.csv',
 
 ]
 
