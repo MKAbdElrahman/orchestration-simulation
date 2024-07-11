@@ -16,11 +16,16 @@ import (
 
 func main() {
 	network := configureNetwork()
-	orchestrator := configureOrchestrator(.99)
+
+	orchestrator_availability := .99
+	orchestrator := configureOrchestrator(orchestrator_availability)
+	// each measurement is averaged over a sample size due to the probabilistic nature distibuted systems
 	sampleSize := 1000
-	npoints := 100
-	alphaStart, alphaEnd := .9, .999
-	minServices, maxServices := 2, 4
+	alpha_0 := .9   // starting availability for the orchestrated service
+	alpha_e := .999 // ending availability for the orchestrated service
+	npoints := 100  //  number or sampling availability points
+
+	minServices, maxServices := 2, 4 // how many orchestrated services
 
 	var wg sync.WaitGroup
 
@@ -28,22 +33,22 @@ func main() {
 
 	go func() {
 		defer wg.Done()
-		runSweep(network, orchestrator, sampleSize, npoints, alphaStart, alphaEnd, minServices, maxServices, orchestration.FantasyFictionSaga{}, "fantasyfiction")
+		runSweep(network, orchestrator, sampleSize, npoints, alpha_0, alpha_e, minServices, maxServices, orchestration.FantasyFictionSaga{}, "fantasyfiction")
 	}()
 
 	go func() {
 		defer wg.Done()
-		runSweep(network, orchestrator, sampleSize, npoints, alphaStart, alphaEnd, minServices, maxServices, orchestration.EpicSaga{}, "epic")
+		runSweep(network, orchestrator, sampleSize, npoints, alpha_0, alpha_e, minServices, maxServices, orchestration.EpicSaga{}, "epic")
 	}()
 
 	go func() {
 		defer wg.Done()
-		runSweep(network, orchestrator, sampleSize, npoints, alphaStart, alphaEnd, minServices, maxServices, orchestration.FairyTaleSaga{}, "fairytale")
+		runSweep(network, orchestrator, sampleSize, npoints, alpha_0, alpha_e, minServices, maxServices, orchestration.FairyTaleSaga{}, "fairytale")
 	}()
 
 	go func() {
 		defer wg.Done()
-		runSweep(network, orchestrator, sampleSize, npoints, alphaStart, alphaEnd, minServices, maxServices, orchestration.ParallelSaga{}, "parallel")
+		runSweep(network, orchestrator, sampleSize, npoints, alpha_0, alpha_e, minServices, maxServices, orchestration.ParallelSaga{}, "parallel")
 	}()
 
 	wg.Wait()
@@ -77,7 +82,7 @@ func configureOrchestratedServices(availability float64, numServices int) []serv
 	return services
 }
 
-func runSweep(network network.Network, orchestrator service.DomainService, sampleSize, npoints int, alphaStart, alphaEnd float64, minServices, maxServices int, mode sweep.OrchestratorMode, baseFileName string) {
+func runSweep(network network.Network, orchestrator service.DomainService, sampleSize, npoints int, alpha_0, alpha_e float64, minServices, maxServices int, mode sweep.OrchestratorMode, baseFileName string) {
 	var wg sync.WaitGroup
 
 	for numServices := minServices; numServices <= maxServices; numServices++ {
@@ -85,7 +90,7 @@ func runSweep(network network.Network, orchestrator service.DomainService, sampl
 		go func(numServices int) {
 			defer wg.Done()
 			outputFileName := fmt.Sprintf("%s_%d_services.csv", baseFileName, numServices)
-			experiments := generateExperiments(alphaStart, alphaEnd, npoints, network, orchestrator, mode, sampleSize, numServices)
+			experiments := generateExperiments(alpha_0, alpha_e, npoints, network, orchestrator, mode, sampleSize, numServices)
 			results := sweep.RunSweep(experiments)
 			if err := saveResultsToCSV(results, outputFileName); err != nil {
 				fmt.Printf("Error saving results to CSV: %v\n", err)
