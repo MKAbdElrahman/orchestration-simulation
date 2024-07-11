@@ -1,9 +1,10 @@
 package main
 
 import (
-	"demo/call"
+	"demo/cmd/sweep"
+	"demo/network"
 	"demo/orchestration"
-	"demo/sweep"
+	"demo/service"
 	"encoding/csv"
 	"fmt"
 	"os"
@@ -48,25 +49,25 @@ func main() {
 	fmt.Println("All sweeps completed")
 }
 
-func configureNetwork() call.Network {
-	return call.Network{
+func configureNetwork() network.Network {
+	return network.Network{
 		AverageTravelLatency: 50 * time.Millisecond,
 		Sigma:                10 * time.Millisecond,
 	}
 }
 
-func configureOrchestrator(availability float64) call.DomainService {
-	return call.DomainService{
+func configureOrchestrator(availability float64) service.DomainService {
+	return service.DomainService{
 		AverageLatency: 100 * time.Millisecond,
 		Sigma:          20 * time.Millisecond,
 		Availability:   availability,
 	}
 }
 
-func configureOrchestratedServices(availability float64, numServices int) []call.DomainService {
-	services := make([]call.DomainService, numServices)
+func configureOrchestratedServices(availability float64, numServices int) []service.DomainService {
+	services := make([]service.DomainService, numServices)
 	for i := range services {
-		services[i] = call.DomainService{
+		services[i] = service.DomainService{
 			AverageLatency: 100 * time.Millisecond,
 			Sigma:          20 * time.Millisecond,
 			Availability:   availability,
@@ -75,7 +76,7 @@ func configureOrchestratedServices(availability float64, numServices int) []call
 	return services
 }
 
-func runSweep(network call.Network, orchestrator call.DomainService, sampleSize, npoints int, alphaStart, alphaEnd float64, minServices, maxServices int, mode sweep.OrchestratorMode, baseFileName string) {
+func runSweep(network network.Network, orchestrator service.DomainService, sampleSize, npoints int, alphaStart, alphaEnd float64, minServices, maxServices int, mode sweep.OrchestratorMode, baseFileName string) {
 	var wg sync.WaitGroup
 
 	for numServices := minServices; numServices <= maxServices; numServices++ {
@@ -96,7 +97,7 @@ func runSweep(network call.Network, orchestrator call.DomainService, sampleSize,
 	wg.Wait()
 }
 
-func generateExperiments(start, end float64, numPoints int, network call.Network, orchestrator call.DomainService, mode sweep.OrchestratorMode, sampleSize, numServices int) []sweep.Experiment {
+func generateExperiments(start, end float64, numPoints int, network network.Network, orchestrator service.DomainService, mode sweep.OrchestratorMode, sampleSize, numServices int) []sweep.Experiment {
 	step := (end - start) / float64(numPoints-1)
 	experiments := make([]sweep.Experiment, 0, numPoints)
 

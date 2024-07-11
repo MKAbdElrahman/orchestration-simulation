@@ -1,20 +1,21 @@
 package sweep
 
 import (
-	"demo/call"
+	"demo/network"
+	"demo/service"
 	"sync"
 	"time"
 )
 
 type OrchestratorMode interface {
-	Orchestrate(ds call.Network, orchestrator call.DomainService, receivers []call.DomainService) bool
+	Orchestrate(ds network.Network, orchestrator service.DomainService, receivers []service.DomainService) bool
 }
 
 type Experiment struct {
-	Network              call.Network
+	Network              network.Network
 	OrchestratorMode     OrchestratorMode
-	Orchestrator         call.DomainService
-	OrchestratedServices []call.DomainService
+	Orchestrator         service.DomainService
+	OrchestratedServices []service.DomainService
 	NumCalls             int
 }
 
@@ -36,7 +37,7 @@ func RunExperiment(exp Experiment) Result {
 	var successCount int
 	var mu sync.Mutex // Mutex to protect failCount and successCount
 
-	// Perform calls concurrently
+	// Perform services concurrently
 	for i := 0; i < exp.NumCalls; i++ {
 		wg.Add(1)
 		go func() {

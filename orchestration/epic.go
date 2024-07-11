@@ -1,16 +1,17 @@
 package orchestration
 
 import (
-	"demo/call"
+	"demo/network"
+	"demo/service"
 	"demo/stack"
 )
 
 type EpicSaga struct {
 }
 
-func (mode EpicSaga) Orchestrate(network call.Network, orchestrator call.DomainService, receivers []call.DomainService) bool {
+func (mode EpicSaga) Orchestrate(network network.Network, orchestrator service.DomainService, receivers []service.DomainService) bool {
 
-	comittedServices := stack.NewStack[call.DomainService]()
+	comittedServices := stack.NewStack[service.DomainService]()
 	for _, svc := range receivers {
 		if network.Call(orchestrator, svc) {
 			comittedServices.Push(svc)
