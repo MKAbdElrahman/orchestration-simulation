@@ -95,7 +95,7 @@ func RunExperiment(exp Experiment) Result {
 }
 
 // RunSweep runs a sweep of experiments with different configurations.
-func RunSweep(experiments []Experiment) []Result {
+func RunExperiments(experiments []Experiment) []Result {
 	results := make([]Result, len(experiments))
 
 	for i, exp := range experiments {

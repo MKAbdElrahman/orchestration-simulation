@@ -23,9 +23,11 @@ It was very easy to simulate sagas with Go, given its great support for multithr
 
 Run the example simulations:
 
-   ```sh
-   go run cmd/main.go
-   ```
+```sh
+   go run ./cmd/
+```
+
+The results will be saved as csv file in the `results` folder.
 
 To generate the plots
 
