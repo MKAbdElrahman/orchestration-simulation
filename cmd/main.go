@@ -5,11 +5,7 @@ import (
 	"demo/network"
 	"demo/orchestration"
 	"demo/service"
-	"encoding/csv"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strconv"
 	"sync"
 	"time"
 )
@@ -21,34 +17,33 @@ func main() {
 	orchestrator := configureOrchestrator(orchestrator_availability)
 	// each measurement is averaged over a sample size due to the probabilistic nature distibuted systems
 	sampleSize := 1000
-	alpha_0 := .9   // starting availability for the orchestrated service
-	alpha_e := .999 // ending availability for the orchestrated service
-	npoints := 100  //  number or sampling availability points
-
+	alpha_0 := .9                    // starting availability for the orchestrated service
+	alpha_e := .999                  // ending availability for the orchestrated service
+	npoints := 100                   //  number or sampling availability points
 	minServices, maxServices := 2, 4 // how many orchestrated services
+	resultsDir := "results"
 
 	var wg sync.WaitGroup
-
-	wg.Add(4) // We are running four sweeps in parallel
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
-		runSweep(network, orchestrator, sampleSize, npoints, alpha_0, alpha_e, minServices, maxServices, orchestration.FantasyFictionSaga{}, "fantasyfiction")
+		runSweep(network, orchestrator, sampleSize, npoints, alpha_0, alpha_e, minServices, maxServices, orchestration.FantasyFictionSaga{}, resultsDir, "fantasyfiction")
 	}()
 
 	go func() {
 		defer wg.Done()
-		runSweep(network, orchestrator, sampleSize, npoints, alpha_0, alpha_e, minServices, maxServices, orchestration.EpicSaga{}, "epic")
+		runSweep(network, orchestrator, sampleSize, npoints, alpha_0, alpha_e, minServices, maxServices, orchestration.EpicSaga{}, resultsDir, "epic")
 	}()
 
 	go func() {
 		defer wg.Done()
-		runSweep(network, orchestrator, sampleSize, npoints, alpha_0, alpha_e, minServices, maxServices, orchestration.FairyTaleSaga{}, "fairytale")
+		runSweep(network, orchestrator, sampleSize, npoints, alpha_0, alpha_e, minServices, maxServices, orchestration.FairyTaleSaga{}, resultsDir, "fairytale")
 	}()
 
 	go func() {
 		defer wg.Done()
-		runSweep(network, orchestrator, sampleSize, npoints, alpha_0, alpha_e, minServices, maxServices, orchestration.ParallelSaga{}, "parallel")
+		runSweep(network, orchestrator, sampleSize, npoints, alpha_0, alpha_e, minServices, maxServices, orchestration.ParallelSaga{}, resultsDir, "parallel")
 	}()
 
 	wg.Wait()
@@ -82,7 +77,8 @@ func configureOrchestratedServices(availability float64, numServices int) []serv
 	return services
 }
 
-func runSweep(network network.Network, orchestrator service.DomainService, sampleSize, npoints int, alpha_0, alpha_e float64, minServices, maxServices int, mode sweep.OrchestratorMode, baseFileName string) {
+func runSweep(network network.Network, orchestrator service.DomainService, sampleSize, npoints int, alpha_0, alpha_e float64, minServices, maxServices int, mode sweep.OrchestratorMode, resultsDir string, baseFileName string) {
+
 	var wg sync.WaitGroup
 
 	for numServices := minServices; numServices <= maxServices; numServices++ {
@@ -92,7 +88,7 @@ func runSweep(network network.Network, orchestrator service.DomainService, sampl
 			outputFileName := fmt.Sprintf("%s_%d_services.csv", baseFileName, numServices)
 			experiments := generateExperiments(alpha_0, alpha_e, npoints, network, orchestrator, mode, sampleSize, numServices)
 			results := sweep.RunSweep(experiments)
-			if err := saveResultsToCSV(results, outputFileName); err != nil {
+			if err := saveResultsToCSV(results, resultsDir, outputFileName); err != nil {
 				fmt.Printf("Error saving results to CSV: %v\n", err)
 			} else {
 				fmt.Printf("Results successfully saved to %s\n", outputFileName)
@@ -123,46 +119,4 @@ func generateExperiments(start, end float64, numPoints int, network network.Netw
 	}
 
 	return experiments
-}
-
-func saveResultsToCSV(results []sweep.Result, fileName string) error {
-	resultsDir := "results"
-
-	// Create the directory if it doesn't exist
-	if err := os.MkdirAll(resultsDir, os.ModePerm); err != nil {
-		return err
-	}
-
-	filePath := filepath.Join(resultsDir, fileName)
-	file, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	// Write CSV header
-	header := []string{"ExperimentIndex", "Availability", "NumDomainServices", "AverageSuccessLatency", "AverageFailureLatency", "SuccessRatio"}
-	if err := writer.Write(header); err != nil {
-		return err
-	}
-
-	// Write data
-	for i, result := range results {
-		record := []string{
-			strconv.Itoa(i),
-			fmt.Sprintf("%f", result.Availability),
-			strconv.Itoa(result.NumDomainServices),
-			result.AverageSuccessLatency.String(),
-			result.AverageFailureLatency.String(),
-			fmt.Sprintf("%.2f%%", result.SuccessRatio*100),
-		}
-		if err := writer.Write(record); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
