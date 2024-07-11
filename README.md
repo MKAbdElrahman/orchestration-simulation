@@ -14,7 +14,6 @@ I attended a workshop by Mark and Neal on the O'Reilly platform. After the lectu
 
 It was very easy to simulate sagas with Go, given its great support for multithreading.
 
-
 ### Prerequisites
 
 - Go programming language installed

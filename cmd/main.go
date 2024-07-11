@@ -2,6 +2,7 @@ package main
 
 import (
 	"demo/call"
+	"demo/orchestration"
 	"demo/sweep"
 	"encoding/csv"
 	"fmt"
@@ -25,22 +26,22 @@ func main() {
 
 	go func() {
 		defer wg.Done()
-		runSweep(network, orchestrator, sampleSize, npoints, alphaStart, alphaEnd, minServices, maxServices, call.FantasyFictionSaga{}, "fantasyfiction")
+		runSweep(network, orchestrator, sampleSize, npoints, alphaStart, alphaEnd, minServices, maxServices, orchestration.FantasyFictionSaga{}, "fantasyfiction")
 	}()
 
 	go func() {
 		defer wg.Done()
-		runSweep(network, orchestrator, sampleSize, npoints, alphaStart, alphaEnd, minServices, maxServices, call.EpicSaga{}, "epic")
+		runSweep(network, orchestrator, sampleSize, npoints, alphaStart, alphaEnd, minServices, maxServices, orchestration.EpicSaga{}, "epic")
 	}()
 
 	go func() {
 		defer wg.Done()
-		runSweep(network, orchestrator, sampleSize, npoints, alphaStart, alphaEnd, minServices, maxServices, call.FaityTaleSaga{}, "fairytale")
+		runSweep(network, orchestrator, sampleSize, npoints, alphaStart, alphaEnd, minServices, maxServices, orchestration.FairyTaleSaga{}, "fairytale")
 	}()
 
 	go func() {
 		defer wg.Done()
-		runSweep(network, orchestrator, sampleSize, npoints, alphaStart, alphaEnd, minServices, maxServices, call.ParallelSaga{}, "parallel")
+		runSweep(network, orchestrator, sampleSize, npoints, alphaStart, alphaEnd, minServices, maxServices, orchestration.ParallelSaga{}, "parallel")
 	}()
 
 	wg.Wait()
